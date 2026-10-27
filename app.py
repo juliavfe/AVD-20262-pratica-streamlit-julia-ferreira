@@ -1,4 +1,5 @@
 import pandas as pd
+import plotly.express as px
 import streamlit as st
 
 from src.data_loader import load_data
@@ -56,43 +57,57 @@ with st.sidebar:
             key=f"intervalo_{var}",
         )
 
-# Mantém só os pacientes dentro de todos os intervalos escolhidos
+# Mantém só os artistas dentro de todos os intervalos escolhidos
 df_filtrado = df
 for var, (inicio, fim) in intervalos.items():
     df_filtrado = df_filtrado[df_filtrado[var].between(inicio, fim)]
 
 st.caption(f"{len(df_filtrado)} de {len(df)} artistas dentro dos intervalos escolhidos.")
 
-# Dashboard 1: correlação (heatmap) à esquerda, distribuição (histograma) à direita
-col_correlacao, col_distribuicao = st.columns([1, 1.5])
+# Dashboard 1: correlação e distribuições das variáveis selecionadas.
+st.subheader("Correlação")
 
-with col_correlacao:
-    st.subheader("Correlação")
+if len(variaveis) < 2:
+    st.warning("Selecione pelo menos 2 variáveis para calcular a correlação.")
+else:
+    metodo = st.selectbox(
+        "Método de correlação",
+        options=["spearman", "kendall", "pearson"],
+        index=0,
+        help="Spearman é o método usado como principal na EDA deste dataset.",
+    )
+    # TODO: calcular df_filtrado[variaveis].corr(method=metodo), montar heatmap e exibir.
 
-    if len(variaveis) < 2:
-        st.warning("Selecione pelo menos 2 variáveis para calcular a correlação.")
-    else:
-        metodo = st.selectbox(
-            "Método de correlação",
-            options=["spearman", "kendall", "pearson"],
-            index=0,
-            help="Spearman é o método usado como principal na EDA deste dataset.",
+st.subheader("Distribuição das variáveis selecionadas")
+
+if not variaveis:
+    st.info("Selecione pelo menos uma variável quantitativa na barra lateral.")
+elif df_filtrado.empty:
+    st.info("Nenhum artista corresponde aos intervalos selecionados.")
+else:
+    colunas_graficos = st.columns(2)
+    for indice, variavel in enumerate(variaveis):
+        fig = px.histogram(
+            df_filtrado,
+            x=variavel,
+            color=COLUNA_CLASSE if separar_por_classe else None,
+            nbins=30,
+            barmode="overlay" if separar_por_classe else "relative",
+            opacity=0.65 if separar_por_classe else 1,
+            title=variavel,
+            labels={
+                variavel: variavel,
+                COLUNA_CLASSE: "Performance",
+                "count": "Quantidade de artistas",
+            },
         )
-        # TODO: calcular df_filtrado[variaveis].corr(method=metodo), montar heatmap e exibir.
-        pass
-
-with col_distribuicao:
-    st.subheader("Distribuição")
-
-    if variaveis:
-        variavel_distribuicao = st.selectbox(
-            "Variável para visualizar",
-            options=variaveis,
-            key="variavel_distribuicao",
-        )
-        # TODO: histograma de variavel_distribuicao; se separar_por_classe,
-        # color=COLUNA_CLASSE (df_filtrado[COLUNA_CLASSE]).
-    else:
-        st.info("Selecione uma variável quantitativa na barra lateral.")
+        fig.update_layout(showlegend=separar_por_classe, margin=dict(t=50, r=15, b=35, l=45))
+        with colunas_graficos[indice % len(colunas_graficos)]:
+            st.plotly_chart(
+                fig,
+                width="stretch",
+                key=f"distribuicao_{indice}",
+                alt=f"Distribuição de {variavel} entre os artistas",
+            )
 
 # TODO: Dashboard 2 — KPIs (Aula 22)

@@ -1,20 +1,20 @@
-# Configuração do Streamlit. Descomente e ajuste conforme o projeto avançar.
+# Configuração do Streamlit: identidade visual inspirada no verde do Spotify.
 # O tema pode ser trocado pelo menu ⋮ → Settings → Choose app theme.
 
 [theme]
 paddingTop = "0.5rem"     # espaço abaixo da barra do topo (valor entre aspas)
-# font = "sans serif"     # "sans serif", "serif" ou "monospace"
+font = "sans serif"       # "sans serif", "serif" ou "monospace"
 
 [theme.light]
-primaryColor = "#ff4b4b"            # cor de destaque (widgets, links)
+primaryColor = "#1a9c48"            # cor de destaque (widgets, links)
 backgroundColor = "#ffffff"         # fundo da página
-secondaryBackgroundColor = "#f0f2f6"  # fundo da sidebar e de widgets
-textColor = "#31333f"               # cor do texto
-borderColor = "#d5dae5"
+secondaryBackgroundColor = "#eef5f0"  # fundo da sidebar e de widgets
+textColor = "#191414"               # cor do texto
+borderColor = "#cfdcd3"
 
 [theme.dark]
-primaryColor = "#ff4b4b"
-backgroundColor = "#0e1117"
-secondaryBackgroundColor = "#262730"
-textColor = "#fafafa"
-borderColor = "#41444e"
+primaryColor = "#1ed760"
+backgroundColor = "#121212"
+secondaryBackgroundColor = "#1f2a23"
+textColor = "#f5f5f5"
+borderColor = "#34433a"

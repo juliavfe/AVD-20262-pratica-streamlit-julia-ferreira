@@ -1,18 +1,11 @@
 # Declaração de Uso de IA
 
-**Nome:**
-**Data:**
+**Nome:** Julia Ferreira
+**Data:** 2026-10-27
 
 ## Ferramenta
 
-<!-- Nome e versão/modelo (ex.: Claude Code, Gemini CLI, ChatGPT). -->
+Claude Code, do VS Code.
 
 ## Prompt usado
-
-<!-- Cole aqui o prompt completo. -->
-
-## O que foi aceito, modificado ou rejeitado e por quê
-
-- **Aceito:**
-- **Modificado:**
-- **Rejeitado:**
+-> ajeite as cores do grafico para ficarem verdes, na mesma paleta do spotify

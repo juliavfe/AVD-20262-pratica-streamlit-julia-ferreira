@@ -245,3 +245,6 @@ data/raw/*
 # Skills do Streamlit (symlinks para o venv; cada aluno roda `streamlit skills`)
 .claude/skills/
 .agents/skills/
+
+# Clone aninhado do repositorio-modelo (nao faz parte da entrega)
+/AVD-20262-pratica-streamlit/

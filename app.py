@@ -56,16 +56,14 @@ def grafico_correlacao(dados: pd.DataFrame, variaveis: list, metodo: str) -> alt
     mapa = base.mark_rect().encode(
         color=alt.Color(
             "correlacao:Q",
-            scale=alt.Scale(scheme="redblue", domain=[-1, 1]),
+            scale=alt.Scale(domain=[-1, 0, 1], range=["#191414", "#dfe5e1", COR_DESTAQUE]),
             legend=alt.Legend(title=f"Correlação ({metodo})"),
         ),
         tooltip=["x:N", "y:N", alt.Tooltip("correlacao:Q", format=".2f")],
     )
     texto = base.mark_text(fontSize=13).encode(
         text=alt.Text("correlacao:Q", format=".2f"),
-        color=alt.condition(
-            "abs(datum.correlacao) > 0.6", alt.value("white"), alt.value("black")
-        ),
+        color=alt.condition("datum.correlacao < -0.45", alt.value("white"), alt.value("black")),
     )
     return (mapa + texto).properties(height=380)
 
@@ -133,7 +131,7 @@ def dashboard_1(dados: pd.DataFrame) -> None:
 
     st.caption(f"{len(filtrado)} de {len(dados)} artistas dentro dos intervalos escolhidos.")
 
-    st.subheader("Correlação")
+    st.subheader("Analise Exploratoria")
     if len(variaveis) < 2:
         st.warning("Selecione pelo menos 2 variáveis para calcular a correlação.")
     elif len(filtrado) < 3:

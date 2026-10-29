@@ -131,7 +131,7 @@ def dashboard_1(dados: pd.DataFrame) -> None:
 
     st.caption(f"{len(filtrado)} de {len(dados)} artistas dentro dos intervalos escolhidos.")
 
-    st.subheader("Analise Exploratoria")
+    st.subheader("Matriz de correlacao")
     if len(variaveis) < 2:
         st.warning("Selecione pelo menos 2 variáveis para calcular a correlação.")
     elif len(filtrado) < 3:
@@ -143,7 +143,11 @@ def dashboard_1(dados: pd.DataFrame) -> None:
             index=0,
             help="Spearman é o método usado como principal na EDA deste dataset.",
         )
-        st.altair_chart(grafico_correlacao(filtrado, variaveis, metodo), width="stretch")
+        st.altair_chart(
+            grafico_correlacao(filtrado, variaveis, metodo),
+            width="stretch",
+            alt=f"Mapa de correlação pelo método {metodo} para as variáveis quantitativas selecionadas.",
+        )
 
     st.subheader("Distribuição das variáveis selecionadas")
     if not variaveis:
@@ -158,6 +162,7 @@ def dashboard_1(dados: pd.DataFrame) -> None:
                     grafico_histograma(filtrado, variavel, separar_por_classe),
                     width="stretch",
                     key=f"distribuicao_{indice}",
+                    alt=f"Distribuição de {variavel} entre os artistas selecionados.",
                 )
 
 
@@ -211,7 +216,13 @@ def dashboard_2(dados: pd.DataFrame) -> None:
 
     col_barras, col_kpis = st.columns([2, 3])
     with col_barras:
-        evento = st.altair_chart(barras, key="d2_generos", on_select="rerun", width="stretch")
+        evento = st.altair_chart(
+            barras,
+            key="d2_generos",
+            on_select="rerun",
+            width="stretch",
+            alt="Contagem de artistas por gênero principal; clique em um gênero para filtrar o painel.",
+        )
 
     selecionados = [item[COLUNA_GENERO] for item in evento.selection.get("genero", [])]
     recorte = base[base[COLUNA_GENERO].isin(selecionados)] if selecionados else base
@@ -259,6 +270,7 @@ def dashboard_2(dados: pd.DataFrame) -> None:
             )
             .properties(title="Mediana de streams por década de estreia", height=190),
             width="stretch",
+            alt="Mediana de streams totais por década de estreia dos artistas filtrados.",
         )
 
     st.altair_chart(
@@ -279,6 +291,7 @@ def dashboard_2(dados: pd.DataFrame) -> None:
         )
         .properties(title="Streams solo x colaborações por artista", height=340),
         width="stretch",
+        alt="Relação entre streams solo e colaborativos para cada artista, com cor indicando a performance.",
     )
 
 

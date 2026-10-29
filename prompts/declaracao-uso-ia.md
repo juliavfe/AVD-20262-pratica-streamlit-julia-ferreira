@@ -1,7 +1,7 @@
 # Declaração de Uso de IA
 
 **Nome:** Julia Ferreira
-**Data:** 2026-10-27
+**Data:** 27/10/2026
 
 ## Ferramenta
 

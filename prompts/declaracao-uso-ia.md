@@ -13,6 +13,7 @@ Prompt usado:
 -> alterar a cor para a paleta do Spotify
 -> ajuda para ajustes da parte visual e de acessibilidade dos gráficos
 -> corrigir erros do notebook e do kagglehub
+-> ajustes de erros no codigo
 
 O que foi aceito, modificado ou rejeitado e por quê
 

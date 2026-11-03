@@ -50,3 +50,4 @@ Cada métrica indica **a variável** a que se refere, **o que mede**, **por que 
   (ex.: "metade das pessoas está acima de X mg/dl"), para quem não consegue captar as
   nuances da variável.
 ```
+https://spotifyavd.streamlit.app

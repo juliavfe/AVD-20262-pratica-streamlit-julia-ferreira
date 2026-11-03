@@ -1,4 +1,5 @@
 import altair as alt
+import numpy as np
 import pandas as pd
 import streamlit as st
 
@@ -13,7 +14,6 @@ st.title("Artistas mais ouvidos no Spotify")
 
 df = load_data()
 
-# Variáveis quantitativas analisadas no notebook Atividade_EDA.ipynb.
 VARS_QUANT = [
     "Debut Year",
     "Total Streams (in millions)",
@@ -32,7 +32,8 @@ CORES_CLASSE = alt.Scale(domain=["Alta", "Baixa"], range=[COR_DESTAQUE, "#8a8f98
 def calcular_correlacao(dados: pd.DataFrame, variaveis: tuple, metodo: str) -> pd.DataFrame:
     """Matriz de correlação em formato longo (uma linha por par), pronta para o heatmap."""
     matriz = dados[list(variaveis)].corr(method=metodo)
-    longo = matriz.stack().reset_index()
+    triangulo = np.tril(np.ones(matriz.shape, dtype=bool))
+    longo = matriz.where(triangulo).stack().reset_index()
     longo.columns = ["x", "y", "correlacao"]
     return longo
 
@@ -81,7 +82,7 @@ def grafico_histograma(dados: pd.DataFrame, variavel: str, separar: bool) -> alt
     )
     if separar:
         grafico = grafico.encode(
-            color=alt.Color(COLUNA_CLASSE, type="nominal", scale=CORES_CLASSE, title="Performance")
+            color=alt.Color(COLUNA_CLASSE, type="nominal", scale=CORES_CLASSE, legend=None)
         )
     return grafico
 
@@ -89,7 +90,6 @@ def grafico_histograma(dados: pd.DataFrame, variavel: str, separar: bool) -> alt
 def dashboard_1(dados: pd.DataFrame) -> None:
     st.caption("Explore como as métricas de streaming e o ano de estreia se relacionam.")
 
-    # Sidebar: filtros (variáveis + intervalo) do Dashboard 1
     with st.sidebar:
         st.header("Filtros — Dashboard 1")
 
@@ -106,7 +106,6 @@ def dashboard_1(dados: pd.DataFrame) -> None:
             help="Exibe as distribuições separadas por performance baixa ou alta.",
         )
 
-        # Um slider de intervalo para cada variável selecionada
         intervalos = {}
         for var in variaveis:
             if pd.api.types.is_integer_dtype(dados[var]):
@@ -114,7 +113,7 @@ def dashboard_1(dados: pd.DataFrame) -> None:
             else:
                 minimo, maximo, passo = float(dados[var].min()), float(dados[var].max()), 0.1
             if minimo == maximo:
-                continue  # o slider exige min < max
+                continue 
             intervalos[var] = st.slider(
                 f"Intervalo de {var}",
                 min_value=minimo,
@@ -124,7 +123,6 @@ def dashboard_1(dados: pd.DataFrame) -> None:
                 key=f"intervalo_{var}",
             )
 
-    # Mantém só os artistas dentro de todos os intervalos escolhidos
     filtrado = dados
     for var, (inicio, fim) in intervalos.items():
         filtrado = filtrado[filtrado[var].between(inicio, fim)]
@@ -155,6 +153,12 @@ def dashboard_1(dados: pd.DataFrame) -> None:
     elif filtrado.empty:
         st.info("Nenhum artista corresponde aos intervalos selecionados.")
     else:
+        if separar_por_classe:
+            st.markdown(
+                f"**Performance:** <span style='color:{COR_DESTAQUE}'>●</span> Alta &nbsp; "
+                "<span style='color:#8a8f98'>●</span> Baixa",
+                unsafe_allow_html=True,
+            )
         colunas = st.columns(2)
         for indice, variavel in enumerate(variaveis):
             with colunas[indice % 2]:
@@ -173,20 +177,24 @@ def dashboard_2(dados: pd.DataFrame) -> None:
         "filtrar os indicadores e os outros gráficos."
     )
 
-    # Widgets que controlam o dashboard
-    col_generos, col_sexo, col_ano = st.columns([2, 1, 2])
-    generos = col_generos.multiselect(
-        "Gênero principal",
-        options=sorted(dados[COLUNA_GENERO].unique()),
-        placeholder="Todos os gêneros",
-    )
-    sexos = col_sexo.multiselect(
-        "Tipo de artista",
-        options=sorted(dados["sexo_label"].unique()),
-        placeholder="Todos",
-    )
-    ano_min, ano_max = int(dados["Debut Year"].min()), int(dados["Debut Year"].max())
-    anos = col_ano.slider("Ano de estreia", ano_min, ano_max, (ano_min, ano_max))
+    with st.sidebar:
+        st.header("Filtros — Dashboard 2")
+        generos = st.multiselect(
+            "Gênero principal",
+            options=sorted(dados[COLUNA_GENERO].unique()),
+            placeholder="Todos os gêneros",
+            key="d2_filtro_generos",
+        )
+        sexos = st.multiselect(
+            "Tipo de artista",
+            options=sorted(dados["sexo_label"].unique()),
+            placeholder="Todos",
+            key="d2_filtro_sexos",
+        )
+        ano_min, ano_max = int(dados["Debut Year"].min()), int(dados["Debut Year"].max())
+        anos = st.slider(
+            "Ano de estreia", ano_min, ano_max, (ano_min, ano_max), key="d2_filtro_anos"
+        )
 
     base = dados[dados["Debut Year"].between(*anos)]
     if generos:
@@ -198,7 +206,6 @@ def dashboard_2(dados: pd.DataFrame) -> None:
         st.info("Nenhum artista corresponde aos filtros escolhidos.")
         return
 
-    # Gráfico de gêneros: o clique numa barra filtra o restante (via on_select)
     clique = alt.selection_point(name="genero", fields=[COLUNA_GENERO])
     barras = (
         alt.Chart(base)
@@ -227,7 +234,6 @@ def dashboard_2(dados: pd.DataFrame) -> None:
     selecionados = [item[COLUNA_GENERO] for item in evento.selection.get("genero", [])]
     recorte = base[base[COLUNA_GENERO].isin(selecionados)] if selecionados else base
 
-    # KPIs calculados sobre o recorte; delta compara com os filtros sem o clique
     def delta(valor_recorte: float, valor_base: float, formato: str) -> str | None:
         if not selecionados:
             return None
@@ -235,25 +241,35 @@ def dashboard_2(dados: pd.DataFrame) -> None:
 
     total = recorte["Total Streams (in millions)"].median() / 1000
     total_base = base["Total Streams (in millions)"].median() / 1000
-    colab = recorte["% of Collaborative Streams"].mean()
-    colab_base = base["% of Collaborative Streams"].mean()
-    alta = (recorte[COLUNA_CLASSE] == "Alta").mean() * 100
-    alta_base = (base[COLUNA_CLASSE] == "Alta").mean() * 100
+    ano = recorte["Debut Year"].median()
+    ano_base = base["Debut Year"].median()
+    n_generos = recorte["Primary Genre"].nunique()
+    n_generos_base = base["Primary Genre"].nunique()
+    TIPO_ALVO = "Feminino"
+    tipo = (recorte["sexo_label"] == TIPO_ALVO).mean() * 100
+    tipo_base = (base["sexo_label"] == TIPO_ALVO).mean() * 100
+
 
     with col_kpis:
         k1, k2 = st.columns(2)
-        k3, k4 = st.columns(2)
         k1.metric("Artistas", f"{len(recorte)}", delta(len(recorte), len(base), "+d"),
                   help="Quantos artistas atendem aos filtros e ao clique.")
         k2.metric("Streams totais (mediana)", f"{total:.1f} bi",
                   delta(total, total_base, "+.1f"),
                   help="Mediana de Total Streams, em bilhões. Resiste a superastros.")
-        k3.metric("Streams de colaborações (média)", f"{colab:.0f}%",
-                  delta(colab, colab_base, "+.0f"),
-                  help="Parcela média dos streams que vem de colaborações.")
-        k4.metric("Artistas de performance alta", f"{alta:.0f}%",
-                  delta(alta, alta_base, "+.0f"),
-                  help="Proporção de artistas classificados com performance Alta.")
+        k3, k4 = st.columns(2)
+        k3.metric("Ano de estreia (mediana)", f"{ano:.0f}",
+                  delta(ano, ano_base, "+.0f"),
+                  help="Ano mediano de estreia dos artistas no recorte.")
+        k4.metric("Gêneros", f"{n_generos}",
+                  delta(n_generos, n_generos_base, "+d"),
+                  help="Quantos gêneros aparecem no recorte.")
+        k5, _ = st.columns(2)
+        k5.metric(f"Artistas {TIPO_ALVO.lower()}s (%)", f"{tipo:.0f}%",
+                  delta(tipo, tipo_base, "+.0f"),
+                  help=f"Percentual de artistas do tipo {TIPO_ALVO} no recorte.")
+
+
 
         decadas = mediana_por_decada(recorte)
         st.altair_chart(
@@ -295,8 +311,9 @@ def dashboard_2(dados: pd.DataFrame) -> None:
     )
 
 
-aba_1, aba_2 = st.tabs(["Dashboard 1 — Correlação", "Dashboard 2 — Indicadores"])
-with aba_1:
-    dashboard_1(df)
-with aba_2:
-    dashboard_2(df)
+DASHBOARDS = {
+    "Dashboard 1 — Correlação": dashboard_1,
+    "Dashboard 2 — Indicadores": dashboard_2,
+}
+escolhido = st.radio("Dashboard", list(DASHBOARDS), horizontal=True, label_visibility="collapsed")
+DASHBOARDS[escolhido](df)

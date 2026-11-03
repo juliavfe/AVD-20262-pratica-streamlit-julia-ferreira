@@ -1,11 +1,25 @@
-# Declaração de Uso de IA
+Declaração de Uso de IA
 
-**Nome:** Julia Ferreira
-**Data:** 27/10/2026
+Nome: Julia Ferreira Data: 03/11/2026
 
-## Ferramenta
+Ferramenta
+Claude Code (VS Code)
+Codex (VS Code)
 
-Claude Code, do VS Code.
+Skill oficial do Streamlit (streamlit skills): Usei (o Codex leu a skill developing-with-streamlit, em .agents/skills, ao trabalhar no app.py)
 
-## Prompt usado
--> ajeite as cores do grafico para ficarem verdes, na mesma paleta do spotify
+Prompt usado:
+-> ajuda para saber como implementar as métricas
+-> alterar a cor para a paleta do Spotify
+-> ajuda para ajustes da parte visual e de acessibilidade dos gráficos
+-> corrigir erros do notebook e do kagglehub
+
+O que foi aceito, modificado ou rejeitado e por quê
+
+Aceito: Ateracoes na parte visual
+Modificado: estilo da matriz e filtros que repetiam do dashboard 1 no dashboard 2
+Rejeitado: ajustes na metrica
+
+Observação sobre as métricas: 
+
+

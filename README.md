@@ -2,14 +2,14 @@
 
 Repositório utilizado para aula prática relacionada a Streamlit na disciplina Análise e Visualização de Dados da Cesar School no período de 2026.2.
 
-Repositório-modelo das Aulas 21, 22 e 23: construção de dois dashboards em Streamlit a partir da EDA desenvolvida em sala. O deploy dos dashbords ocorrerá via Streamlit Community Cloud e serão os seguintes:
+Repositório das Aulas 21, 22 e 23: construção de dois dashboards em Streamlit a partir da EDA desenvolvida em sala. A aplicação está publicada no Streamlit Community Cloud:
 
 - Dashboard 1 = correlação + distribuição das variáveis quantitativas
 - Dashboard 2 = KPIs
 
 ## Aplicação publicada
 
-**Status:** aguardando publicação no Streamlit Community Cloud. A URL pública será adicionada aqui após o deploy.
+Aplicação disponível no [Streamlit Community Cloud](https://spotifyavd.streamlit.app).
 
 ## Setup
 

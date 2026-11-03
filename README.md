@@ -6,7 +6,7 @@ Repositório das Aulas 21, 22 e 23: construção de dois dashboards em Streamlit
 
 - Dashboard 1 = correlação + distribuição das variáveis quantitativas
 - Dashboard 2 = KPIs
-
+https://spotifyavd.streamlit.app
 ## Aplicação publicada
 
 Aplicação disponível no [Streamlit Community Cloud](https://spotifyavd.streamlit.app).
